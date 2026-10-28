@@ -211,6 +211,16 @@
 
         <!-- The remote's Input button (KEYCODE_TV or KEYCODE_TV_INPUT) opens the input switcher, and input_key_keycodes and
          app_keys (config.xml or a theme) bring back other remote buttons; see InputKeyService. -->
+        <!-- Media session access for the Now Playing card; reads no notification.
+             cmd notification allow_listener com.gathin.tvhome/com.gathin.tvhome.MediaNoteService -->
+        <service
+            android:name=".MediaNoteService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
         <!-- Bound again by the system after a force stop, which restarts Home on firmware that kills
              third-party apps (TCL tc8000_ay30a2). It reads no notification.
              cmd notification allow_listener com.gathin.tvhome/.GuardRevival -->

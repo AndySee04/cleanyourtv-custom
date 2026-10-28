@@ -180,6 +180,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** config show_inputs_pill: false keeps the Inputs pill hidden even when the TV has inputs. */
     private boolean showInputsPill = true;
     private TextView btnWifi;
+    /** The Now Playing card under the clock (from cleanyourtv-custom); built on the first resume. */
+    private NowPlayingCard npCard;
     /** The network pill's icon as last set, so a refresh that changes nothing does not lay the top bar out again. */
     private int wifiIcon;
     /** The pills have been filled in once; later resumes refresh them after the first frame. */
@@ -1000,6 +1002,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onResume() {
         super.onResume();
         resumed = true;
+        if (npCard == null && root != null) npCard = new NowPlayingCard(this, root);
+        if (npCard != null) npCard.refresh();
         // A festival that started or ended while Home was in the background: rebuild with or without it.
         if (festive != festival.active(LocalDate.now())) {
             recreate();
@@ -1279,6 +1283,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (npCard != null) npCard.release();
         if (gameDay != null) gameDay.shutdown();
         unregisterReceiver(packageReceiver);
         wallpaperPlayer.close();
@@ -2606,6 +2611,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (shamsi) shamsiDate.setText(Shamsi.today(getResources()));
         if (lunar) lunarDate.setText(Lunar.today(getResources(), lunarOffset));
+        if (npCard != null) npCard.refresh();
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------
