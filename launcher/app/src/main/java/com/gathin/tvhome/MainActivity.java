@@ -2147,7 +2147,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 if (statsBg != bg) return;
                 String line = readStatsLine();
                 handler.post(() -> {
-                    if (showStats && stats != null && statsBg == bg) stats.setText(line);
+                    if (showStats && stats != null && statsBg == bg) stats.setText(withStatIcons(line));
                 });
                 if (statsBg == bg) bg.postDelayed(this, STATS_MS);
             }
@@ -2167,7 +2167,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** One quiet line, e.g. "CPU 8%  ·  Memory 430 MB free  ·  Storage 3.1 GB free". Runs off the main thread. */
     private static void appendStat(StringBuilder line, String part) {
-        if (line.length() > 0) line.append("  ·  ");
+        if (line.length() > 0) line.append("    ");
         line.append(part);
     }
 
@@ -2186,11 +2186,32 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // showing a dash that never fills in.
         StringBuilder line = new StringBuilder();
         if (cpu >= 0) line.append(getString(R.string.stats_cpu, cpu));
+        // This TV's edit: icons instead of words, memory as percent used, storage as space free.
         long[] mem = memUsedOfTotalMb();
-        if (mem != null) appendStat(line, getString(R.string.stats_memory, mem[0], mem[1]));
+        if (mem != null && mem[1] > 0) appendStat(line, STAT_MEMORY + " " + Math.round(mem[0] * 100f / mem[1]) + "%");
         String free = formatGb(getResources(), Environment.getDataDirectory().getFreeSpace());
-        if (!free.isEmpty()) appendStat(line, getString(R.string.stats_storage, free));
+        if (!free.isEmpty()) appendStat(line, STAT_STORAGE + " " + free);
         return StatsText.forLocale(line.toString(), getResources().getConfiguration().getLocales().get(0));
+    }
+
+    /** Markers in the stats line that withStatIcons draws as icons. */
+    private static final char STAT_MEMORY = '', STAT_STORAGE = '';
+
+    /** The stats line with its markers as icons the height of the text, in the text's colour. Main thread. */
+    private CharSequence withStatIcons(String line) {
+        android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder(line);
+        int size = Math.round(stats.getTextSize() * 1.15f);
+        for (int i = 0; i < sb.length(); i++) {
+            char c = sb.charAt(i);
+            int res = c == STAT_MEMORY ? R.drawable.ic_stat_memory : c == STAT_STORAGE ? R.drawable.ic_stat_storage : 0;
+            if (res == 0) continue;
+            android.graphics.drawable.Drawable icon = getDrawable(res).mutate();
+            icon.setBounds(0, 0, size, size);
+            icon.setTint(stats.getCurrentTextColor());
+            sb.setSpan(new android.text.style.ImageSpan(icon, android.text.style.ImageSpan.ALIGN_BOTTOM), i, i + 1,
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return sb;
     }
 
     // -1: need another sample. -2: this source cannot be read (Android 9 hides /proc/stat from apps).
