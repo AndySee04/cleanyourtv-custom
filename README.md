@@ -1,3 +1,7 @@
+> **This is a customised fork** of [Gathin23/cleanyourtv](https://github.com/Gathin23/cleanyourtv): its
+> launcher adds a Now Playing card, a Wi-Fi popup and compact stats icons, set up for a SHARP 2K Smart TV.
+> See [CUSTOM.md](CUSTOM.md) for what is different. Everything below is the original README.
+
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore." width="800"></a>
 </p>
